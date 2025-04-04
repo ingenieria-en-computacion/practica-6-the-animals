@@ -37,18 +37,17 @@ START_TEST(test_append_and_length) {
     ck_assert_uint_eq(list_int_length(list), 2);
     
     list_int_destroy(list);
-    ck_assert_ptr_null(list);
 }
 END_TEST
 
 START_TEST(test_insert_and_get) {
     List_int* list = list_int_create();
-    int value = 0;
     
     list_int_insert(list, 10, 0);
     list_int_insert(list, 30, 1);
     list_int_insert(list, 20, 1);    
     
+    int value = 0;
     ck_assert(list_int_get(list, 1, &value));
     ck_assert_int_eq(value, 20);
     
@@ -62,12 +61,12 @@ START_TEST(test_remove) {
     list_int_append(list, 20);
     list_int_append(list, 30);
     
-    ck_assert(list_int_remove_at(list, 1));  // Elimina 20
+    ck_assert(list_int_remove_at(list, 1));  
     ck_assert_uint_eq(list_int_length(list), 2);
     
     int value = 0;
     ck_assert(list_int_get(list, 1, &value));
-    ck_assert_int_eq(value, 30);  // Lista: [10, 30]
+    ck_assert_int_eq(value, 30);  
     
     list_int_destroy(list);
 }
