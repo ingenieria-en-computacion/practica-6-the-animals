@@ -1,101 +1,65 @@
+#include <stdio.h>
 #include <check.h>
-#include <stdlib.h>
-#define LINKED_LIST_IMPLEMENTATION
-#include "linkedlist.h"
+#include "cola_circular.h"
+#include "bicola.h"
 
-// Función auxiliar para imprimir enteros (usada en pruebas)
-void print_int(int value) {
-    printf("%d ", value);
+START_TEST(test_cola_crear) {
+    ColaCircular cola;
+    cola_crear(&cola);
+    ck_assert_int_eq(cola_vacia(&cola), 1);
 }
 
-// Función auxiliar para comparar enteros
-bool int_cmp(int a, int b) {
-    return a == b;
+START_TEST(test_bicola_agregar_frente) {
+    Bicola bi;
+    bicola_crear(&bi);
+    bicola_agregar_frente(&bi, 10);
+    ck_assert_int_eq(bicola_eliminar_frente(&bi), 10);
 }
 
-/* ------------------------------------- */
-/* Tests para listas de enteros (List_int) */
-/* ------------------------------------- */
+Suite* cola_suite(void) {
+    Suite* s;
+    TCase* tc_core;
 
-START_TEST(test_list_create) {
-    List_int* list = list_int_create();
-    ck_assert_ptr_nonnull(list);
-    ck_assert_ptr_null(list->head);
-    ck_assert_ptr_null(list->tail);
-    ck_assert_uint_eq(list->length, 0);
-    list_int_destroy(list);
-}
-END_TEST
+    s = suite_create("Cola");
+    tc_core = tcase_create("Core");
 
-START_TEST(test_append_and_length) {
-    List_int* list = list_int_create();
-    
-    ck_assert(list_int_append(list, 10));
-    ck_assert_uint_eq(list_int_length(list), 1);
-    
-    ck_assert(list_int_append(list, 20));
-    ck_assert_uint_eq(list_int_length(list), 2);
-    
-    list_int_destroy(list);
-}
-END_TEST
-
-START_TEST(test_insert_and_get) {
-    List_int* list = list_int_create();
-    
-    list_int_insert(list, 10, 0);
-    list_int_insert(list, 30, 1);
-    list_int_insert(list, 20, 1);    
-    
-    int value = 0;
-    ck_assert(list_int_get(list, 1, &value));
-    ck_assert_int_eq(value, 20);
-    
-    list_int_destroy(list);
-}
-END_TEST
-
-START_TEST(test_remove) {
-    List_int* list = list_int_create();
-    list_int_append(list, 10);
-    list_int_append(list, 20);
-    list_int_append(list, 30);
-    
-    ck_assert(list_int_remove_at(list, 1));  
-    ck_assert_uint_eq(list_int_length(list), 2);
-    
-    int value = 0;
-    ck_assert(list_int_get(list, 1, &value));
-    ck_assert_int_eq(value, 30);  
-    
-    list_int_destroy(list);
-}
-END_TEST
-
-/* ------------------------------------- */
-/* Suite de pruebas principal */
-/* ------------------------------------- */
-
-Suite* linked_list_suite(void){
-    Suite* s = suite_create("Linked List");
-    
-    TCase* tc_core = tcase_create("Core Functions");
-    tcase_add_test(tc_core, test_list_create);
-    tcase_add_test(tc_core, test_append_and_length);
-    tcase_add_test(tc_core, test_insert_and_get);
-    tcase_add_test(tc_core, test_remove);
-    
+    tcase_add_test(tc_core, test_cola_crear);
     suite_add_tcase(s, tc_core);
+
+    return s;
+}
+
+Suite* bicola_suite(void) {
+    Suite* s;
+    TCase* tc_core;
+
+    s = suite_create("Bicola");
+    tc_core = tcase_create("Core");
+
+    tcase_add_test(tc_core, test_bicola_agregar_frente);
+    suite_add_tcase(s, tc_core);
+
     return s;
 }
 
 int main(void) {
+    printf("Ejecutando pruebas unitarias:\n");
     int number_failed;
-    SRunner* sr = srunner_create(linked_list_suite());
-    
+    Suite* s;
+    SRunner* sr;
+
+    s = cola_suite();
+    sr = srunner_create(s);
     srunner_run_all(sr, CK_NORMAL);
     number_failed = srunner_ntests_failed(sr);
     srunner_free(sr);
-    
-    return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+
+    s = bicola_suite();
+    sr = srunner_create(s);
+    srunner_run_all(sr, CK_NORMAL);
+    number_failed += srunner_ntests_failed(sr);
+    srunner_free(sr);
+
+    printf("Número de pruebas fallidas: %d\n", number_failed);
+    return (number_failed == 0) ? 0 : 1;
 }
